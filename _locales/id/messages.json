@@ -395,6 +395,7 @@
     "copy_tweet_links_as": { "message": "Salin tautan tweet sebagai", "example": "->Copy links as<- vxtwitter.com" },
     "use_new_icon": { "message": "Gunakan logo baru sebagai ikon tab" },
     "update_timeline_automatically": { "message": "Perbarui linimasa secara otomatis saat tweet baru muncul." },
+    "keep_timeline_position": { "message": "Pertahankan posisi linimasa setelah diperbarui." },
     "chrono_no_retweets": { "message": "Kronologi terbalik (tanpa retweet)" },
     "chrono_retweets": { "message": "Kronologi terbalik (hanya retweet)" },
     "hide_trends": { "message": "Sembunyikan tren" },
@@ -654,6 +655,6 @@
     "based_in_vpn": { "message": "(VPN)" },
     "new_gallery": { "message": "Gunakan galeri baru untuk halaman media profil" },
     "popular_from_follows": { "message": "Populer dari yang diikuti" },
-    "popular_from_follows_help": { "message": "Ini akan menampilkan tweet populer terkini hanya dari pengguna yang kamu ikuti." },
+    "popular_from_follows_help": { "message": "Ini akan menampilkan tweet populer terkini hanya dari pengguna yang Anda ikuti." },
     "use_x_chat": { "message": "Gunakan Obrolan X, bukan DM OldTwitter." }
 }
