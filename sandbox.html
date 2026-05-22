@@ -46,24 +46,35 @@
                         return;
                     }
                     const id = idMatch[1];
-                    const defaultMatch = challengeData.match(/default:\(\)=>(\w+)\}\)/);
-                    if (!defaultMatch) {
+
+                    const assignMatch = challengeData.match(/(\w+\s*\.\s*default\s*=\s*)\(\s*\)\s*=>/);
+                    const propMatch = challengeData.match(/default:\(\)=>(\w+)\}\)/);
+                    if (!assignMatch && !propMatch) {
                         console.error('Default export not found');
                         event.source.postMessage({ action: 'initError', error: 'Default export not found' }, event.origin);
                         initError = true;
                         return;
                     }
-                    const defaultVar = defaultMatch[1];
+
                     // TO EXTENSION REVIEWERS (mostly Mozilla):
                     // This script is part of Twitter's security challenge, before mindlessly rejecting extension actually review what code does please! It's in sandbox for a reason.
                     // It only ever executes code from trusted Twitter domain, abs.twimg.com (specifically their script that generates security headers)
                     // It's impossible to have it contained in extension itself, since it's generated dynamically
                     // you can see where script is loaded in scripts/twchallenge.js
                     // it also can't use any extension APIs, since it's contained in object url iframe
-                    const patchedChallengeData = challengeData.replace(
-                        `default:()=>${defaultVar}`,
-                        `default:(window._CHALLENGE=()=>${defaultVar})`
-                    );
+                    let patchedChallengeData;
+                    if (assignMatch) {
+                        patchedChallengeData = challengeData.replace(
+                            assignMatch[0],
+                            `${assignMatch[1]}window.__CHALLENGE_FN__=()=>`
+                        );
+                    } else {
+                        const defaultVar = propMatch[1];
+                        patchedChallengeData = challengeData.replace(
+                            `default:()=>${defaultVar}`,
+                            `default:(window._CHALLENGE=()=>${defaultVar})`
+                        );
+                    }
                     eval(patchedChallengeData);
 
                     // 1) Collect all module factories that have already been pushed
@@ -109,6 +120,10 @@
                     };
                     wreq.o = (obj, prop) => Object.prototype.hasOwnProperty.call(obj, prop);
                     webpackChunk_twitter_responsive_web[1][1][id](chunks, cache, wreq);
+
+                    if (window.__CHALLENGE_FN__) {
+                        window._CHALLENGE = () => window.__CHALLENGE_FN__;
+                    }
                     solver = window._CHALLENGE()();
                     event.source.postMessage({ action: 'ready' }, event.origin);
                 } catch (e) {
