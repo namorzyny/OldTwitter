@@ -931,7 +931,7 @@ async function renderFollowers(clear = true, cursor) {
                                 u.friends_count,
                                 u.description ? u.description.replace(/https:\/\/t\.co\/[a-zA-Z0-9]+/g, m => {
                                     if(!u.entities || !u.entities.description || !u.entities.description.urls) return m;
-                                    let entity = u.entities.description.urls.find(e => e.url === m);
+                                    let entity = u.entities.description?.urls?.find(e => e.url === m);
                                     if(entity) {
                                         return entity.expanded_url;
                                     } else {
@@ -1272,7 +1272,7 @@ async function renderProfile() {
             document.getElementById('profile-bio').append(span);
             let links = Array.from(span.getElementsByTagName('a'));
             links.forEach(link => {
-                let realLink = pageUser.entities.description.urls.find(u => u.url === link.href);
+                let realLink = pageUser.entities.description?.urls?.find(u => u.url === link.href);
                 if (realLink) {
                     link.href = realLink.expanded_url;
                     if(!link.href.startsWith('/')) link.target = '_blank';
@@ -1815,7 +1815,7 @@ async function renderProfile() {
 
     let links = Array.from(document.getElementById('profile-bio').getElementsByTagName('a'));
     links.forEach(link => {
-        let realLink = pageUser.entities.description.urls.find(u => u.url === link.href);
+        let realLink = pageUser.entities.description?.urls?.find(u => u.url === link.href);
         if (realLink) {
             link.href = realLink.expanded_url;
             if(!link.href.startsWith('/')) link.target = '_blank';

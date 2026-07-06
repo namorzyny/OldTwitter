@@ -2539,7 +2539,7 @@ let userDataFunction = async user => {
             div.addEventListener('mouseleave', leaveFunction);
             let links = Array.from(div.querySelector('.preview-user-description').querySelectorAll('a'));
             links.forEach(link => {
-                let realLink = user.entities.description.urls.find(u => u.url === link.href);
+                let realLink = user.entities.description?.urls?.find(u => u.url === link.href);
                 if (realLink) {
                     link.href = realLink.expanded_url;
                     if(!link.href.startsWith('/')) link.target = '_blank';
