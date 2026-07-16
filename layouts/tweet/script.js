@@ -187,7 +187,7 @@ async function updateReplies(id, c) {
                     bigFont: true
                 });
             }
-            if(t.data.limited_actions !== "non_compliant") appendComposeComponent(tlContainer, t.data);
+            if(t.data.limited_actions !== "non_compliant") await appendComposeComponent(tlContainer, t.data);
         }
         if(t.type === 'tweet') {
             await appendTweet(t.data, tlContainer, {

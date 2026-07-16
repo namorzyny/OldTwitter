@@ -299,7 +299,7 @@ class TweetViewer {
                     });
                 }
                 if (t.data.limited_actions !== "non_compliant")
-                    this.appendComposeComponent(tlContainer, t.data);
+                    await this.appendComposeComponent(tlContainer, t.data);
             }
             if (t.type === "tweet") {
                 await this.appendTweet(t.data, tlContainer, {
