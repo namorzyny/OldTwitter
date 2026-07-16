@@ -16,6 +16,40 @@
         }
 
         let initError = false, solver;
+        let solveChain = Promise.resolve();
+
+        async function waitForSolver() {
+            if (solver || initError) return;
+            const waits = [50, 100, 500, 1000, 2500, 3000];
+            for (const ms of waits) {
+                await sleep(ms);
+                if (solver || initError) return;
+            }
+        }
+
+        async function runSolve(event, data) {
+            if (initError) {
+                console.error('Initialization error');
+                event.source.postMessage({ action: 'error', error: 'Initialization error', id: data.id }, event.origin);
+                return;
+            }
+            if (!solver) {
+                await waitForSolver();
+                if (initError || !solver) {
+                    console.error('Solver not initialized');
+                    event.source.postMessage({ action: 'error', error: 'Solver timed out', id: data.id }, event.origin);
+                    return;
+                }
+            }
+            try {
+                let result = await solver(data.path, data.method);
+                event.source.postMessage({ action: 'solved', result, id: data.id }, event.origin);
+            } catch (e) {
+                console.error('Solver error:', e);
+                event.source.postMessage({ action: 'error', error: `${e.message}\n${e.stack}`, id: data.id }, event.origin);
+            }
+        }
+
         window.addEventListener('message', async function (event) {
             if (event.origin !== 'https://twitter.com' && event.origin !== 'https://x.com') {
                 return;
@@ -33,6 +67,7 @@
                     eval(vendorData);
 
                     let animsDiv = document.getElementById('anims');
+                    animsDiv.innerHTML = '';
                     for (let anim of data.anims) {
                         animsDiv.innerHTML += `\n${anim}`;
                     }
@@ -132,38 +167,7 @@
                     initError = true;
                 }
             } else if (data.action === 'solve') {
-                if (initError) {
-                    console.error('Initialization error');
-                    event.source.postMessage({ action: 'error', error: 'Initialization error', id: data.id }, event.origin);
-                    return;
-                }
-                if (!solver) {
-                    await sleep(50);
-                    if (!solver) {
-                        await sleep(100);
-                    }
-                    if (!solver) {
-                        await sleep(500);
-                    }
-                    if (!solver) {
-                        await sleep(1000);
-                    }
-                    if (!solver) {
-                        await sleep(2500);
-                    }
-                    if (initError || !solver) {
-                        console.error('Solver not initialized');
-                        event.source.postMessage({ action: 'error', error: 'Solver timed out', id: data.id }, event.origin);
-                        return;
-                    }
-                }
-                try {
-                    let result = await solver(data.path, data.method);
-                    event.source.postMessage({ action: 'solved', result, id: data.id }, event.origin);
-                } catch (e) {
-                    console.error('Solver error:', e);
-                    event.source.postMessage({ action: 'error', error: `${e.message}\n${e.stack}`, id: data.id }, event.origin);
-                }
+                solveChain = solveChain.then(() => runSolve(event, data), () => runSolve(event, data));
             }
         });
     </script>
