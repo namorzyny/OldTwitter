@@ -6887,7 +6887,7 @@ const API = {
                         location.hostname
                     }/1.1/search/typeahead.json?q=${encodeURIComponent(
                         query
-                    )}&include_can_dm=1&count=5&prefetch=false&cards_platform=Web-13&include_entities=1&include_user_entities=1&include_cards=1&send_error_codes=1&tweet_mode=extended&include_ext_alt_text=true&include_reply_count=true&ext=views%2CmediaStats%2CverifiedType%2CisBlueVerified`,
+                    )}&include_ext_is_blue_verified=1&include_ext_verified_type=1&include_ext_profile_image_shape=1&src=search_box&result_type=cashtags%2Cevents%2Cusers%2Ctopics%2Clists`,
                     {
                         headers: {
                             authorization: OLDTWITTER_CONFIG.public_token,
