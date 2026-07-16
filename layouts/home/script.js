@@ -83,10 +83,13 @@ setTimeout(() => {
                         <ul>
                             <li>Added GIF picker.</li>
                             <li>Fixed DMs not loading again.</li>
+                            <li>Fixed users not appearing in search results.</li>
                             <li>Fixed tweet page often giving "Solver timed out" error.</li>
                             <li>Fixed clicking on quote tweet and then back sending you to the quote instead of the quoted tweet.</li>
                             <li>Added "Based in" to user previews.</li>
+                            <li>Fixed adding/removing users from lists.</li>
                             <li>Made new gallery show all media of tweets instead of just the first one.</li>
+                            <li>A couple of style fixes.</li>
                         </ul>
                     </span>
                 `, 'changelog-modal', () => {}, () => Date.now() - opened > 1250);
