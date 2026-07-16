@@ -73,7 +73,9 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
         )
             details.requestHeaders.push({
                 name: "Origin",
-                value: "https://x.com",
+                value: details.originUrl
+                    ? new URL(details.originUrl).origin
+                    : "https://x.com",
             });
         return {
             requestHeaders: details.requestHeaders,
@@ -93,6 +95,25 @@ chrome.webRequest.onHeadersReceived.addListener(
     },
     {
         urls: ["*://*.twitter.com/*", "*://twitter.com/*", "*://*.x.com/*", "*://x.com/*"],
+    },
+    ["blocking", "responseHeaders"]
+);
+chrome.webRequest.onHeadersReceived.addListener(
+    function (details) {
+        const origin = new URL(
+            details.originUrl || details.url || "https://x.com"
+        ).origin;
+        const responseHeaders = details.responseHeaders.filter(
+            (h) => h.name.toLowerCase() !== "access-control-allow-origin"
+        );
+        responseHeaders.push({
+            name: "access-control-allow-origin",
+            value: origin,
+        });
+        return { responseHeaders };
+    },
+    {
+        urls: ["*://*.twimg.com/*", "*://twimg.com/*"],
     },
     ["blocking", "responseHeaders"]
 );
