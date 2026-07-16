@@ -5094,15 +5094,33 @@ const API = {
 
                             sendRequestToEventListeners("TweetDetail", data);
 
+                            let addEntries =
+                                data.data.threaded_conversation_with_injections_v2.instructions.find(
+                                    (i) => i.type === "TimelineAddEntries"
+                                );
+                            let entry =
+                                addEntries &&
+                                addEntries.entries &&
+                                addEntries.entries.find(
+                                    (e) => e.entryId === `tweet-${id}`
+                                );
                             let ic =
-                                data.data.threaded_conversation_with_injections_v2.instructions
-                                    .find(
-                                        (i) => i.type === "TimelineAddEntries"
-                                    )
-                                    .entries.find(
-                                        (e) => e.entryId === `tweet-${id}`
-                                    ).content.itemContent;
-                            let res = ic.tweet_results.result;
+                                entry &&
+                                entry.content &&
+                                entry.content.itemContent;
+                            let res =
+                                ic &&
+                                ic.tweet_results &&
+                                ic.tweet_results.result;
+                            if (!res) {
+                                let msg = LOC.tweet_doesnt_exist.message;
+                                if (loadingDetails[id])
+                                    loadingDetails[id].listeners.forEach((l) =>
+                                        l[1](msg)
+                                    );
+                                delete loadingDetails[id];
+                                return reject(msg);
+                            }
                             let tweet = parseTweet(res);
                             if (tweet) {
                                 tweet.hasModeratedReplies =
@@ -5649,18 +5667,20 @@ const API = {
                                     (i) => i.entries
                                 );
                             if (!ae) {
+                                if (!cursor) {
+                                    let msg = LOC.tweet_doesnt_exist.message;
+                                    if (loadingReplies[id])
+                                        loadingReplies[id].listeners.forEach(
+                                            (l) => l[1](msg)
+                                        );
+                                    delete loadingReplies[id];
+                                    return reject(msg);
+                                }
                                 let out = {
                                     list: [],
                                     cursor: null,
                                     users: {},
                                 };
-                                if (!cursor) {
-                                    if (loadingReplies[id])
-                                        loadingReplies[id].listeners.forEach(
-                                            (l) => l[0](out)
-                                        );
-                                    delete loadingReplies[id];
-                                }
                                 debugLog("tweet.getRepliesV2", "end", {
                                     cursor,
                                     out,
@@ -6015,6 +6035,20 @@ const API = {
                                 users,
                             };
                             debugLog("tweet.getRepliesV2", "end", out);
+
+                            if (
+                                !cursor &&
+                                !list.some((t) => t.type === "mainTweet") &&
+                                !list.some((t) => t.type === "tombstone")
+                            ) {
+                                let msg = LOC.tweet_doesnt_exist.message;
+                                if (loadingReplies[id])
+                                    loadingReplies[id].listeners.forEach((l) =>
+                                        l[1](msg)
+                                    );
+                                delete loadingReplies[id];
+                                return reject(msg);
+                            }
 
                             resolve(out);
 
