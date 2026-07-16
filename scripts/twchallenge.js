@@ -13,6 +13,7 @@ let sandboxUrl = fetch(chrome.runtime.getURL(`sandbox.html`))
 
 function createSolverFrame() {
     if (solverIframe) solverIframe.remove();
+    solverReady = false;
     solverIframe = document.createElement("iframe");
     //display:none causes animations to not play which breaks the challenge solver, so have to hide it in different way
     solverIframe.style.position = "absolute";
@@ -112,7 +113,10 @@ window.addEventListener("message", (e) => {
         location.href = `${location.pathname}?newtwitter=true`;
     } else if (data.action === "ready") {
         solverReady = true;
-        for (let task of solveQueue) {
+        let queue = solveQueue;
+        solveQueue = [];
+        for (let task of queue) {
+            if (!solveCallbacks[task.id]) continue;
             solverIframe.contentWindow.postMessage(
                 {
                     action: "solve",
