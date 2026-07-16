@@ -81,11 +81,11 @@ setTimeout(() => {
                     <h2 style="margin:0;margin-bottom:10px;color:var(--darker-gray);font-weight:300">(OldTwitter) ${LOC.new_version.message} - ${chrome.runtime.getManifest().version}</h2>
                     <span id="changelog" style="font-size:14px;color:var(--default-text-color)">
                         <ul>
-                            <li>Fixed lists not loading.</li>
-                            <li>Fixed X Chat not working on Firefox.</li>
-                            <li>Fixed pressing on Message button on profile page not opening correct chat.</li>
-                            <li>Fixed articles not loading when OldTwitter is enabled.</li>
-                            <li>Some style fixes for X Chat.</li>
+                            <li>Fixed DMs not loading again.</li>
+                            <li>Fixed tweet page often giving "Solver timed out" error.</li>
+                            <li>Fixed clicking on quote tweet and then back sending you to the quote instead of the quoted tweet.</li>
+                            <li>Added "Based in" to user previews.</li>
+                            <li>Made new gallery show all media of tweets instead of just the first one.</li>
                         </ul>
                     </span>
                 `, 'changelog-modal', () => {}, () => Date.now() - opened > 1250);
