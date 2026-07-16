@@ -3114,7 +3114,6 @@ class TweetViewer {
                                         "nice-button"
                                     )[0].innerText = LOC.remove.message;
                                 }
-                                l.is_member = !l.is_member;
                             });
                     }
                 }

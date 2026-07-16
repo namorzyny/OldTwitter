@@ -1780,7 +1780,6 @@ async function renderProfile() {
                         l.is_member = true;
                         listElement.getElementsByClassName('nice-button')[0].innerText = LOC.remove.message;
                     }
-                    l.is_member = !l.is_member;
                 });
             }
         });

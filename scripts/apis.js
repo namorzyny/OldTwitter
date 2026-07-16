@@ -8427,7 +8427,7 @@ const API = {
                         if (data.errors && data.errors[0].code === 32) {
                             return reject("Not logged in");
                         }
-                        if (data.errors && data.errors[0]) {
+                        if (data.errors && data.errors[0] && !data?.data?.list) {
                             return reject(data.errors[0].message);
                         }
                         chrome.storage.local.set({ listData: {} }, () => {});
@@ -8469,7 +8469,7 @@ const API = {
                         if (data.errors && data.errors[0].code === 32) {
                             return reject("Not logged in");
                         }
-                        if (data.errors && data.errors[0]) {
+                        if (data.errors && data.errors[0] && !data?.data?.list) {
                             return reject(data.errors[0].message);
                         }
                         chrome.storage.local.set({ listData: {} }, () => {});
