@@ -3577,9 +3577,10 @@ async function appendTweet(t, timelineContainer, options = {}) {
             });
         if (tweetBodyQuote) {
             if (typeof mainTweetLikers !== "undefined") {
-                tweetBodyQuote.addEventListener("click", (e) => {
+                tweetBodyQuote.addEventListener("click", async (e) => {
                     e.preventDefault();
                     document.getElementById("loading-box").hidden = false;
+                    savePageData();
                     history.pushState(
                         {},
                         null,
@@ -3591,8 +3592,9 @@ async function appendTweet(t, timelineContainer, options = {}) {
                     cursor = undefined;
                     seenReplies = [];
                     mainTweetLikers = [];
+                    let restored = await restorePageData();
                     let id = location.pathname.match(/status\/(\d{1,32})/)[1];
-                    if (subpage === "tweet") {
+                    if (subpage === "tweet" && !restored) {
                         updateReplies(id);
                     } else if (subpage === "likes") {
                         updateLikes(id);

@@ -121,7 +121,12 @@ function updateUserData() {
     });
 }
 async function updateReplies(id, c) {
-    if(!c) document.getElementById('timeline').innerHTML = '';
+    if(!c) {
+        document.getElementById('timeline').innerHTML = '';
+        tweets = [];
+        seenReplies = [];
+        insertedMores = [];
+    }
     let tl, tweetLikers;
     try {
         let [tlData, tweetLikersData] = await Promise.allSettled([API.tweet.getRepliesV2(id, c), API.tweet.getLikers(id, undefined, 10, false)]);

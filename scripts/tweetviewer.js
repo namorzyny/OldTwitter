@@ -208,6 +208,9 @@ class TweetViewer {
         if (!c) {
             tvl.hidden = false;
             document.getElementsByClassName("timeline")[0].innerHTML = "";
+            this.tweets = [];
+            this.seenReplies = [];
+            this.insertedMores = [];
         }
         let tl, tweetLikers;
         try {
@@ -3154,8 +3157,9 @@ class TweetViewer {
 
         // Quote body
         if (tweetBodyQuote) {
-            tweetBodyQuote.addEventListener("click", (e) => {
+            tweetBodyQuote.addEventListener("click", async (e) => {
                 e.preventDefault();
+                this.savePageData();
                 history.pushState(
                     {},
                     null,
@@ -3168,8 +3172,9 @@ class TweetViewer {
                 this.cursor = undefined;
                 this.seenReplies = [];
                 this.mainTweetLikers = [];
+                let restored = await this.restorePageData();
                 let id = location.pathname.match(/status\/(\d{1,32})/)[1];
-                if (this.subpage === "tweet") {
+                if (this.subpage === "tweet" && !restored) {
                     this.updateReplies(id);
                 } else if (this.subpage === "likes") {
                     this.updateLikes(id);
