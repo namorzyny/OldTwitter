@@ -1452,6 +1452,7 @@ let userDataFunction = async user => {
                     <div class="message-new">
                         <div class="message-new-media"></div>
                         <span class="message-new-media-btn"></span>
+                        <span class="message-gif-btn" title="${LOC.gif.message}"></span>
                         <span class="message-emoji-btn"></span>
                         <textarea type="text" class="message-new-input" placeholder="${LOC.type_message.message}"></textarea>
                         <button class="nice-button message-new-send">${LOC.send.message}</button>
@@ -1486,6 +1487,7 @@ let userDataFunction = async user => {
         const newMediaButton = modal.querySelector('.message-new-media-btn');
         const newMediaInput = modal.querySelector('.message-new-input');
         const emojiButton = modal.querySelector('.message-emoji-btn');
+        const gifButton = modal.querySelector('.message-gif-btn');
         const newSend = modal.querySelector('.message-new-send');
         const newInput = modal.querySelector('.message-new-input');
         const loadMore = modal.querySelector('.load-more');
@@ -1646,6 +1648,9 @@ let userDataFunction = async user => {
                 top: rect.y-300 + 'px'
             });
         });
+        gifButton.addEventListener('click', () => {
+            createGifPicker(mediaToUpload, newMedia, true);
+        });
         
         loadMore.addEventListener('click', async () => {
             let moreInbox = await API.inbox.get(cursor);
@@ -1786,6 +1791,7 @@ let userDataFunction = async user => {
                     <textarea maxlength="25000" class="navbar-new-tweet-text" placeholder="${LOC.whats_happening.message}"></textarea>
                     <div class="navbar-new-tweet-user-search box" hidden></div>
                     <div class="navbar-new-tweet-media-div">
+                        <span class="navbar-new-tweet-gif-btn" title="${LOC.gif.message}"></span>
                         <span class="navbar-new-tweet-media"></span>
                     </div>
                     <div class="navbar-new-tweet-focused">
@@ -1803,6 +1809,7 @@ let userDataFunction = async user => {
         const newTweetText = modal.getElementsByClassName('navbar-new-tweet-text')[0];
         const newTweetChar = modal.getElementsByClassName('navbar-new-tweet-char')[0];
         const newTweetMedia = modal.getElementsByClassName('navbar-new-tweet-media')[0];
+        const newTweetGifBtn = modal.getElementsByClassName('navbar-new-tweet-gif-btn')[0];
         const newTweetMediaDiv = modal.getElementsByClassName('navbar-new-tweet-media-c')[0];
         const newTweetButton = modal.getElementsByClassName('navbar-new-tweet-button')[0];
         const newTweetUserSearch = modal.getElementsByClassName('navbar-new-tweet-user-search')[0];
@@ -2009,6 +2016,15 @@ let userDataFunction = async user => {
             newTweetPoll.style.width = "0";
             pollToUpload = undefined;
             getMedia(mediaToUpload, newTweetMediaDiv);
+            newTweetText.focus();
+        });
+        newTweetGifBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            newTweetPoll.innerHTML = '';
+            newTweetPoll.hidden = true;
+            newTweetPoll.style.width = "0";
+            pollToUpload = undefined;
+            createGifPicker(mediaToUpload, newTweetMediaDiv);
             newTweetText.focus();
         });
         newTweetButton.addEventListener('click', async () => {

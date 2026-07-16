@@ -439,6 +439,7 @@ async function appendComposeComponent(container, replyTweet) {
             <textarea id="new-tweet-text" placeholder="${replyMessage}" maxlength="25000"></textarea>
             <div id="new-tweet-user-search" class="box" hidden></div>
             <div id="new-tweet-media-div" title="${LOC.add_media.message}">
+                <span id="new-tweet-gif-btn" title="${LOC.gif.message}"></span>
                 <span id="new-tweet-media"></span>
             </div>
             <div id="new-tweet-focused" hidden>
@@ -523,8 +524,19 @@ async function appendComposeComponent(container, replyTweet) {
             }
         }
     });
-    document.getElementById('new-tweet-media-div').addEventListener('click', async () => {
+    document.getElementById('new-tweet-media').addEventListener('click', async (e) => {
+        e.stopPropagation();
         getMedia(mediaToUpload, document.getElementById('new-tweet-media-c'));
+    });
+    document.getElementById('new-tweet-gif-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        document.getElementById('new-tweet').click();
+        createGifPicker(mediaToUpload, document.getElementById('new-tweet-media-c'));
+    });
+    document.getElementById('new-tweet-media-div').addEventListener('click', async (e) => {
+        if (e.target === document.getElementById('new-tweet-media-div')) {
+            document.getElementById('new-tweet-media').click();
+        }
     });
     let newTweetUserSearch = document.getElementById("new-tweet-user-search");
     let newTweetText = document.getElementById('new-tweet-text');

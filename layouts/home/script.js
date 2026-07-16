@@ -655,12 +655,28 @@ setTimeout(async () => {
             pollToUpload = undefined;
         }
     });
-    document.getElementById('new-tweet-media-div').addEventListener('click', () => {
+    document.getElementById('new-tweet-media').addEventListener('click', (e) => {
+        e.stopPropagation();
         document.getElementById('new-tweet-poll').innerHTML = '';
         document.getElementById('new-tweet-poll').hidden = true;
         document.getElementById('new-tweet-poll').style.width = '0';
         pollToUpload = undefined;
         getMedia(mediaToUpload, tweetMediaList);
+    });
+    document.getElementById('new-tweet-gif-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        document.getElementById('new-tweet').click();
+        document.getElementById('new-tweet-poll').innerHTML = '';
+        document.getElementById('new-tweet-poll').hidden = true;
+        document.getElementById('new-tweet-poll').style.width = '0';
+        pollToUpload = undefined;
+        createGifPicker(mediaToUpload, tweetMediaList);
+    });
+    // keep clicks on the media area from bubbling oddly when focused
+    document.getElementById('new-tweet-media-div').addEventListener('click', (e) => {
+        if (e.target === document.getElementById('new-tweet-media-div')) {
+            document.getElementById('new-tweet-media').click();
+        }
     });
     let selectedIndex = 0;
     newTweetText.addEventListener('focus', async e => {

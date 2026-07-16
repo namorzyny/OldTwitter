@@ -1620,6 +1620,10 @@ async function constructTweet(t, tweetConstructorArgs, options = {}) {
                         [LOC.upload_media_btn.message]
                     ),
                     " ",
+                    elNew("span", { class: ["tweet-reply-add-gif"] }, [
+                        LOC.gif_btn.message,
+                    ]),
+                    " ",
                     elNew("span", { class: ["tweet-reply-add-emoji"] }, [
                         LOC.emoji_btn.message,
                     ]),
@@ -1682,6 +1686,10 @@ async function constructTweet(t, tweetConstructorArgs, options = {}) {
                         },
                         [LOC.upload_media_btn.message]
                     ),
+                    " ",
+                    elNew("span", { class: ["tweet-quote-add-gif"] }, [
+                        LOC.gif_btn.message,
+                    ]),
                     " ",
                     elNew("span", { class: ["tweet-quote-add-emoji"] }, [
                         LOC.emoji_btn.message,

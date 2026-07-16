@@ -1245,6 +1245,181 @@ function createEmojiPicker(container, input, style = {}) {
 
     return picker;
 }
+function createGifPicker(mediaArray, mediaContainer, is_dm = false) {
+    let cursor = undefined;
+    let loading = false;
+    let currentQuery = "";
+    let modal = createModal(
+        `
+        <div class="gif-picker" style="color:var(--almost-black)">
+            <h3 class="nice-header">${LOC.gif.message}</h3>
+            <input type="text" class="gif-picker-search" placeholder="${LOC.search.message}" style="width:100%;box-sizing:border-box;margin:8px 0 12px;padding:6px 8px;border:1px solid var(--border);border-radius:4px;font:14px var(--font-override);background:var(--background-color);color:var(--almost-black)">
+            <div class="gif-picker-grid"></div>
+            <div class="gif-picker-status center-text" style="padding:10px;color:var(--light-gray)">${LOC.loading.message}</div>
+        </div>
+    `,
+        "gif-picker-modal"
+    );
+    let searchInput = modal.querySelector(".gif-picker-search");
+    let grid = modal.querySelector(".gif-picker-grid");
+    let status = modal.querySelector(".gif-picker-status");
+    let content = modal.querySelector(".modal-content");
+
+    async function selectGif(item) {
+        let url =
+            item.original_image && item.original_image.url
+                ? item.original_image.url
+                : item.preview_image && item.preview_image.url
+                ? item.preview_image.url
+                : null;
+        if (!url || loading) return;
+        loading = true;
+        status.hidden = false;
+        status.innerText = LOC.loading.message;
+        try {
+            let blob;
+            try {
+                let res = await fetch(url);
+                if (!res.ok) throw new Error(res.status + " " + res.statusText);
+                blob = await res.blob();
+            } catch (e) {
+                blob = await new Promise((resolve, reject) => {
+                    chrome.runtime.sendMessage(
+                        { action: "fetchBlob", url },
+                        (response) => {
+                            if (chrome.runtime.lastError) {
+                                return reject(chrome.runtime.lastError);
+                            }
+                            if (!response || !response.ok) {
+                                return reject(
+                                    (response && response.error) || e
+                                );
+                            }
+                            let binary = atob(response.data);
+                            let bytes = new Uint8Array(binary.length);
+                            for (let i = 0; i < binary.length; i++) {
+                                bytes[i] = binary.charCodeAt(i);
+                            }
+                            resolve(
+                                new Blob([bytes], {
+                                    type: response.type || "image/gif",
+                                })
+                            );
+                        }
+                    );
+                });
+            }
+            let file = new File(
+                [blob],
+                (item.alt_text || "gif").replace(/[^\w\-]+/g, "_").slice(0, 40) +
+                    ".gif",
+                {
+                    type:
+                        blob.type && blob.type.includes("gif")
+                            ? blob.type
+                            : "image/gif",
+                }
+            );
+            while (mediaArray.length) {
+                mediaArray.pop();
+            }
+            mediaContainer.innerHTML = "";
+            await handleFiles([file], mediaArray, mediaContainer, is_dm);
+            modal.removeModal();
+        } catch (e) {
+            console.error(e);
+            status.innerText = String(e);
+            loading = false;
+        }
+    }
+
+    function appendItems(items) {
+        if (!items || !items.length) return;
+        for (let i = 0; i < items.length; i++) {
+            let item = items[i];
+            if (!item || (item.item_type && item.item_type !== "gif")) continue;
+            let thumb =
+                (item.thumbnail_images &&
+                    item.thumbnail_images[0] &&
+                    item.thumbnail_images[0].url) ||
+                (item.preview_image && item.preview_image.url) ||
+                (item.original_image && item.original_image.url);
+            if (!thumb) continue;
+            let btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "gif-picker-item";
+            btn.title = item.alt_text || "";
+            let img = document.createElement("img");
+            img.src = thumb;
+            img.alt = item.alt_text || "GIF";
+            img.loading = "lazy";
+            btn.appendChild(img);
+            btn.addEventListener("click", () => selectGif(item));
+            grid.appendChild(btn);
+        }
+    }
+
+    async function loadGifs(query, reset) {
+        if (loading) return;
+        loading = true;
+        if (reset) {
+            cursor = undefined;
+            grid.innerHTML = "";
+        }
+        status.hidden = false;
+        status.innerText = LOC.loading.message;
+        try {
+            let data = await API.search.gifs(query, cursor);
+            let items =
+                data && data.data && data.data.items
+                    ? data.data.items
+                    : data && data.items
+                    ? data.items
+                    : [];
+            if (reset && (!items || !items.length)) {
+                status.innerText = LOC.gif_no_results.message;
+            } else {
+                status.hidden = true;
+            }
+            appendItems(items);
+            cursor =
+                (data && data.data && (data.data.cursor || data.data.next_cursor)) ||
+                (data && (data.cursor || data.next_cursor)) ||
+                undefined;
+            if (!cursor) {
+                status.hidden = false;
+                if (grid.children.length === 0) {
+                    status.innerText = LOC.gif_no_results.message;
+                } else {
+                    status.hidden = true;
+                }
+            }
+        } catch (e) {
+            console.error(e);
+            status.innerText = String(e);
+        }
+        loading = false;
+    }
+
+    let searchTimeout;
+    searchInput.addEventListener("input", () => {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            currentQuery = searchInput.value.trim();
+            loadGifs(currentQuery, true);
+        }, 300);
+    });
+    content.addEventListener("scroll", () => {
+        if (!cursor || loading) return;
+        if (content.scrollTop + content.clientHeight >= content.scrollHeight - 80) {
+            loadGifs(currentQuery, false);
+        }
+    });
+
+    setTimeout(() => searchInput.focus(), 50);
+    loadGifs("", true);
+    return modal;
+}
 function isEmojiOnly(str) {
     const stringToTest = str.replace(/ /g, "");
     const emojiRegex =
@@ -3222,6 +3397,9 @@ async function appendTweet(t, timelineContainer, options = {}) {
             tweet.getElementsByClassName("tweet-reply-cancel")[0];
         const tweetReplyUpload =
             tweet.getElementsByClassName("tweet-reply-upload")[0];
+        const tweetReplyAddGif = tweet.getElementsByClassName(
+            "tweet-reply-add-gif"
+        )[0];
         const tweetReplyAddEmoji = tweet.getElementsByClassName(
             "tweet-reply-add-emoji"
         )[0];
@@ -3270,6 +3448,9 @@ async function appendTweet(t, timelineContainer, options = {}) {
             tweet.getElementsByClassName("tweet-quote-cancel")[0];
         const tweetQuoteUpload =
             tweet.getElementsByClassName("tweet-quote-upload")[0];
+        const tweetQuoteAddGif = tweet.getElementsByClassName(
+            "tweet-quote-add-gif"
+        )[0];
         const tweetQuoteAddEmoji = tweet.getElementsByClassName(
             "tweet-quote-add-emoji"
         )[0];
@@ -4002,6 +4183,10 @@ async function appendTweet(t, timelineContainer, options = {}) {
             getMedia(replyMedia, tweetReplyMedia);
             tweetReplyText.focus();
         });
+        tweetReplyAddGif.addEventListener("click", () => {
+            createGifPicker(replyMedia, tweetReplyMedia);
+            tweetReplyText.focus();
+        });
         tweetInteractReply.addEventListener("click", () => {
             if (options.mainTweet) {
                 document.getElementById("new-tweet").click();
@@ -4447,6 +4632,9 @@ async function appendTweet(t, timelineContainer, options = {}) {
         });
         tweetQuoteUpload.addEventListener("click", () => {
             getMedia(quoteMedia, tweetQuoteMedia);
+        });
+        tweetQuoteAddGif.addEventListener("click", () => {
+            createGifPicker(quoteMedia, tweetQuoteMedia);
         });
         tweetQuoteText.addEventListener("keydown", (e) => {
             if (e.key === "Enter" && e.ctrlKey) {

@@ -624,6 +624,7 @@ class TweetViewer {
             ></textarea>
             <div class="new-tweet-user-search box" hidden></div>
             <div class="new-tweet-media-div" title="${LOC.add_media.message}">
+                <span class="new-tweet-gif-btn" title="${LOC.gif.message}"></span>
                 <span class="new-tweet-media"></span>
             </div>
             <div class="new-tweet-focused" hidden>
@@ -810,9 +811,29 @@ class TweetViewer {
                 handleDrop(e, this.mediaToUpload, mediaList);
             });
         document
-            .getElementsByClassName("new-tweet-media-div")[0]
-            .addEventListener("click", async () => {
+            .getElementsByClassName("new-tweet-media")[0]
+            .addEventListener("click", async (e) => {
+                e.stopPropagation();
                 getMedia(this.mediaToUpload, mediaList);
+            });
+        document
+            .getElementsByClassName("new-tweet-gif-btn")[0]
+            .addEventListener("click", (e) => {
+                e.stopPropagation();
+                document.getElementsByClassName("new-tweet-view")[0].click();
+                createGifPicker(this.mediaToUpload, mediaList);
+            });
+        document
+            .getElementsByClassName("new-tweet-media-div")[0]
+            .addEventListener("click", async (e) => {
+                if (
+                    e.target ===
+                    document.getElementsByClassName("new-tweet-media-div")[0]
+                ) {
+                    document
+                        .getElementsByClassName("new-tweet-media")[0]
+                        .click();
+                }
             });
         let newTweetUserSearch = document.getElementsByClassName(
             "new-tweet-user-search"
@@ -2293,6 +2314,9 @@ class TweetViewer {
                             class="tweet-reply-upload"
                             >${LOC.upload_media_btn.message}</span
                         >
+                        <span class="tweet-reply-add-gif"
+                            >${LOC.gif_btn.message}</span
+                        >
                         <span class="tweet-reply-add-emoji"
                             >${LOC.emoji_btn.message}</span
                         >
@@ -2333,6 +2357,9 @@ class TweetViewer {
                             ${!vars.disableHotkeys ? 'title="ALT+M"' : ""}
                             class="tweet-quote-upload"
                             >${LOC.upload_media_btn.message}</span
+                        >
+                        <span class="tweet-quote-add-gif"
+                            >${LOC.gif_btn.message}</span
                         >
                         <span class="tweet-quote-add-emoji"
                             >${LOC.emoji_btn.message}</span
@@ -2819,6 +2846,9 @@ class TweetViewer {
             tweet.getElementsByClassName("tweet-reply-cancel")[0];
         const tweetReplyUpload =
             tweet.getElementsByClassName("tweet-reply-upload")[0];
+        const tweetReplyAddGif = tweet.getElementsByClassName(
+            "tweet-reply-add-gif"
+        )[0];
         const tweetReplyAddEmoji = tweet.getElementsByClassName(
             "tweet-reply-add-emoji"
         )[0];
@@ -2867,6 +2897,9 @@ class TweetViewer {
             tweet.getElementsByClassName("tweet-quote-cancel")[0];
         const tweetQuoteUpload =
             tweet.getElementsByClassName("tweet-quote-upload")[0];
+        const tweetQuoteAddGif = tweet.getElementsByClassName(
+            "tweet-quote-add-gif"
+        )[0];
         const tweetQuoteAddEmoji = tweet.getElementsByClassName(
             "tweet-quote-add-emoji"
         )[0];
@@ -3487,6 +3520,9 @@ class TweetViewer {
         tweetReplyUpload.addEventListener("click", () => {
             getMedia(replyMedia, tweetReplyMedia);
         });
+        tweetReplyAddGif.addEventListener("click", () => {
+            createGifPicker(replyMedia, tweetReplyMedia);
+        });
         tweetInteractReply.addEventListener("click", () => {
             if (options.mainTweet) {
                 document.getElementsByClassName("new-tweet-view")[0].click();
@@ -3893,6 +3929,9 @@ class TweetViewer {
         });
         tweetQuoteUpload.addEventListener("click", () => {
             getMedia(quoteMedia, tweetQuoteMedia);
+        });
+        tweetQuoteAddGif.addEventListener("click", () => {
+            createGifPicker(quoteMedia, tweetQuoteMedia);
         });
         tweetQuoteText.addEventListener("keydown", (e) => {
             if (e.key === "Enter" && e.ctrlKey) {
