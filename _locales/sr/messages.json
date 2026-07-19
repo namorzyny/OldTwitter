@@ -4,7 +4,7 @@
     "loading": { "message": "Učitavanje" },
     "tweets": { "message": "Tvitovi" },
     "following_btn": { "message": "Pratim", "description": "Ovo se koristi za dugme koje pokazuje da korisnik prati nekoga." },
-    "following": { "message": "Following", "description": "Ovo se koristi u listi koja prikazuje koga korisnik prati. Potrudi se da ova reč ima najviše 9 znakova."
+    "following": { "message": "Following", "description": "Ovo se koristi u listi koja prikazuje koga korisnik prati. Potrudi se da ova reč ima najviše 9 znakova." },
     "followers": { "message": "Followers", "description": "Ovo se koristi u listi pratioca korisnika. Potrudi se da ova reč ima najviše 9 znakova." },
     "trends": { "message": "Trendovi" },
     "tweet": { "message": "Tvit" },
